@@ -1,0 +1,70 @@
+/**
+* Optimizations for mobile browsers.
+*/
+.mobile-browser {
+  /**
+  * Enable momentum scrolling for iOS
+  */
+  .momentum-scroll() {
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .scrollable {
+    .momentum-scroll();
+  }
+  .scrollable-flex-row {
+    .momentum-scroll();
+  }
+  .flex-scrollable {
+    .momentum-scroll();
+  }
+
+  .hidden-mobile {
+    visibility: collapse !important;
+  }
+
+  #time-entries {
+    section.list {
+      .time-entry {
+        .time-entry-progress-indicator {
+          visibility: visible;
+          .options {
+            left: 0px;
+            margin-left: 5px;
+          }
+        }
+
+        section.bottom {
+          .indicator {
+            display: none;
+          }
+        }
+
+        &:hover:not(.ui-resizable-resizing):not(.time-entry-drag) {
+          .pie-timer {
+            display: initial;
+          }
+          .pause-content {
+            display: none;
+          }
+        }
+      }
+
+    }
+
+    .footer-inverse {
+      position: fixed;
+    }
+  }
+
+  .modal-dialog {
+    // Don't show shortcuts on mobile
+    .modal-hint {
+      display: none;
+    }
+  }
+
+  .btn-default {
+    border: 1px solid @input-border;
+  }
+}

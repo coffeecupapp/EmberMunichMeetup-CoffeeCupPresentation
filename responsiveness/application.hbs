@@ -1,0 +1,44 @@
+{{#if session.isAuthenticated}}
+
+    <header class="visible-xs visible-sm navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button class="pull-left btn navbar-toggle collapsed" {{action "toggleMobileMenu"}}>
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                {{#link-to "index" class="navbar-brand"}}<img src="/assets/images/logo_white.svg">{{/link-to}}
+                <button {{action 'invalidateSession'}} class="pull-right btn" type="button">
+                    <span class="sr-only">{{t "logout"}}</span>
+                    <span class="icon icon-log-out-1"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    {{!-- If we're on mobile add class to apply mobile optimisations --}}
+    <div class="{{if isMobile "mobile-browser"}}  {{if blurBackgroundOnModal "blurIn"}}">
+        <div class="container-fluid">
+            <div class="sidebar {{if mobileMenuOpen "drawer-open"}}">
+                <div class="brand">
+                    {{#link-to "index"}}<i class="icon-cc-cup"></i>{{/link-to}}
+                </div>
+                <div class="main-menu scrollable">
+                    {{render 'menu' menu}}
+                </div>
+            </div>
+            <main>
+                {{outlet}}
+            </main>
+        </div>
+    </div>
+
+{{else}}
+    {{!-- Show login screen --}}
+    {{outlet 'formbox'}}
+{{/if}}
+
+
+
