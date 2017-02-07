@@ -34,7 +34,7 @@
 
 # WebSockets  
 - Any web application that provides value for users and that they are going to use a lot and leave open throughout the day is going to have to think about when data gets refreshed. That's why we chose to use a WebSocket for our core API. WebSockets also provide a lot of value if you have multiple clients. A user isn't necessarily going to understand why they don't immediately see the updates they made in another client.
-- Ember Data works really well with WebSockets, because if you work with the Array returned by the Ember Data Store then you generally get automatic updated as new data is pushed into the store from the socket.
+- Ember Data works really well with WebSockets, because if you work with the Array returned by the Ember Data Store then you generally get automatically updated as new data is pushed into the store from the socket.
 - The exception to this rule is if you have a query. In the case of the time entries list here, we are only showing entries for a specific week and a specific user. Ember Data doesn't automatically update these results as new data comes from the WebSocket. This means if a new time entry is added or removed, the array won't be updated.
 - The solution for this is to listen to the events from Socket directly, and then manually update the data. Ember Data still handles updates to individual objects, so you just need to worry about creation and deletion.
 
@@ -75,4 +75,4 @@
 ### When to write your tests?
 - NOW!
 - Building acceptance tests from the beginning changes the way you think about how data is encapsulated in your application. In the case of CoffeeCup we didn't have tests until after the product was relatively mature. This made building in reliable tests more difficult after the fact. Also, strange behaviour in the tests are harder to distinguish between a problem in the app or just some strange behaviour of Ember.
-- Tests make it easier for new members to come into the team. New team members often don't understand all of the requirements and features of a complex application. Having tests lets them make changes and getting feedback when things regarding what things shouldn't be changed.
+- Tests make it easier for new members to come into the team. New team members often don't understand all of the requirements, features and history behind a complex application. Having tests lets them make changes and get feedback when things shouldn't be changed.
