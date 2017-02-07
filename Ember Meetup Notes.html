@@ -1,0 +1,119 @@
+<h1>Ember Munich Meetup 7.02.17</h1>
+
+<h3>CoffeeCup Case Study</h3>
+
+<h1>Ember updates are your friend</h1>
+
+<ul>
+<li>The time entry list has a lot of dynamic behaviour, with drag and drop and resizing. The logic used to be all together in the controller and there were a lot of small optimisations to keep everything running well.</li>
+<li>We refactored all the logic out into individual components. The logic was a lot cleaner, but the performance was worse.</li>
+<li>We spent a lot of time analysing the render behaviour and try and figure out how we could optimise it. The problem was that every time we saved an individual model, it caused the whole page to be rerendered. This also caused issues with some jQuery components that were doing direct DOM manipulation.</li>
+<li>The solution was...to update Ember. We were on Ember 1.12 at the time and updating to 1.13 got us Glimmer.</li>
+<li>It made a huge difference and it is now faster than it was before the refactor.</li>
+<li>Consider planning in times for updates regularly, even if you&#39;re just sticking with the LTS releases.</li>
+</ul>
+
+<h1>Ember Deprecations</h1>
+
+<ul>
+<li>Ember 1.13 brought with it a whole lot of new deprecation messages.</li>
+<li>Make sure you read the blog, google deprecation messages.</li>
+<li>Deprecation messages can also be caused by dependencies, so keep that in mind when you&#39;re looking for what is causing the message.</li>
+<li>Searching may lead you to the issue on Github where someone has reported the warning. </li>
+<li>The solution may involve updating a dependency.</li>
+</ul>
+
+<h1>Responsive vs. Mobile Optimisation</h1>
+
+<ul>
+<li>Responsiveness is part of optimising for mobile, but it is not everything.</li>
+<li>Responsiveness is important for ensuring that your site works well at any resolution, but there are fundamental differences between touch and mouse-based devices.</li>
+<li>There is no fool-proof way to detect touch-only devices. Please tell me I&#39;m wrong. The unsatisfactory solution that we chose was parsing User-Agents.</li>
+<li>Generally you should be careful about any specific changes you make, it&#39;ll add to potential bugs and testing burden. Best choice is always to avoid inconsistencies, while still providing a good user experience.</li>
+</ul>
+
+<h3>Things to look out for</h3>
+
+<ul>
+<li>No hover events.</li>
+<li>Hide language regarding keyboard interation or information about keyboard shortcuts.</li>
+<li>Don&#39;t forget momentum scrolling. Just feels wrong if its not there.</li>
+</ul>
+
+<h1>When to load your data?</h1>
+
+<ul>
+<li>Ember offers really good handling of promises, integrating with Ember Data to asynchronously load data. But I think we&#39;ve all seen applications that show spinner after spinner as you go deeper into application.</li>
+<li>For some applications, I think particularly if users are going to visit various routes directly, then it makes a lot of sense to be flexible.</li>
+<li>CoffeeCup is an application that most users seem to open and leave open throughout the work day. So we wanted to keep the loading process simple, as well as avoiding some of the transitional states. The solution is simple, load everything in the application route and use peek throughout the other routes to access the data.</li>
+</ul>
+
+<h1>WebSockets</h1>
+
+<ul>
+<li>Any web application that provides value for users and that they are going to use a lot and leave open throughout the day is going to have to think about when data gets refreshed. That&#39;s why we chose to use a WebSocket for our core API. WebSockets also provide a lot of value if you have multiple clients. A user isn&#39;t necessarily going to understand why they don&#39;t immediately see the updates they made in another client.</li>
+<li>Ember Data works really well with WebSockets, because if you work with the Array returned by the Ember Data Store then you generally get automatic updated as new data is pushed into the store from the socket.</li>
+<li>The exception to this rule is if you have a query. In the case of the time entries list here, we are only showing entries for a specific week and a specific user. Ember Data doesn&#39;t automatically update these results as new data comes from the WebSocket. This means if a new time entry is added or removed, the array won&#39;t be updated.</li>
+<li>The solution for this is to listen to the events from Socket directly, and then manually update the data. Ember Data still handles updates to individual objects, so you just need to worry about creation and deletion.</li>
+</ul>
+
+<h3>Depending on Dependencies</h3>
+
+<ul>
+<li>In the case of CoffeeCup the server is based on node, using the library Sails. Sails has a builtin WebSocket interface and can handle the events. </li>
+<li>Sails uses a non-standard format for the WebSocket messages. However, there is an ember addon that handles the messages and adds everything to Ember Data. The only problem is that the addon isn&#39;t maintained anymore. This isn&#39;t the end of the world because the dependency isn&#39;t so big, but it has been one of the roadblocks that&#39;s kept us from updating to Ember 2.0+. </li>
+<li>Something to consider regarding any dependency is:
+
+<ol>
+<li>Could you write it yourself? I think this is mostly relevant to really small pieces of code. See left-pad.</li>
+<li>Is it well maintained? (e.g. How many outstanding issues are there? When were the last commits?)</li>
+<li>Are there any alternatives? If someone stops maintaining it, could I migrate to something else?</li>
+<li>Are you willing to maintain it?</li>
+</ol></li>
+</ul>
+
+<h1>Mutability in an API / Analytics</h1>
+
+<ul>
+<li>Having a dynamic API that always keeps data up to date is not the solution to everything.</li>
+<li>In some cases you want an API that is immutable.</li>
+<li>In our case, we have a separate REST API for analytics. This is because it would be both difficult to implement, but also unecessary. It would actually be confusing to a user if the statistics they&#39;re looking at continue to update in real time.</li>
+<li>A case of different tools for different situations.</li>
+</ul>
+
+<h1>Localisation</h1>
+
+<ul>
+<li>MomentJS/NumeralJS</li>
+<li>Never hardcode strings. You will forget!</li>
+<li>Use helpers and services
+
+<ul>
+<li>Services are easily accessible anywhere in your Ember application, and can make it very easy to centralise localisation logic.</li>
+<li>Helpers are great because they can make these services easily accessible in your templates.</li>
+</ul></li>
+</ul>
+
+<h3>Localisations for consistency</h3>
+
+<ul>
+<li>If your application supports multiple localisations, it can be difficult to keep them up to date. Most importantly, they can be difficult to maintain, because as your application evolves and changes, you&#39;ll want to remove unused strings. Writing a simple test to continuously parse, and throw errors about inconsistensies can be a way to manage this, and is something that we&#39;ve found quite effective. Effectively a PR can&#39;t be merged until the localisations are in sync. However, we only support German and English, so if you support many languages, and the localisations are done mostly by an external agency, I think using one language as the &#39;master&#39; you could use a script to create a diff of the localisation based on a previous commit, and only send new or changed localisations to the agency.</li>
+</ul>
+
+<h1>Testing</h1>
+
+<h3>jQuery callbacks</h3>
+
+<ul>
+<li>Using jQuery plugins can be a really quick way of integrating complicated additional functionality. In CoffeeCup we use a number of plugins such as the jQuery UI resizable and sortable plugins. Something to keep in mind is that these additions can cause issues with testing. </li>
+<li>When running an acceptance test, the test runner doesn&#39;t automatically start run loops, which happens in production. This means that if jQuery triggers an update to an Ember model out of turn, an error will be thrown during the test. The solution to this is to simply wrap updates in an Ember.run call which triggers a loop. </li>
+<li>Another point regarding jQuery plugins is you need to make sure you remove your event listeners when the containing component gets destroyed. Ember test actions run much faster than a normal person would normally click, so its a great way to discover race conditions and edge cases in your UI.</li>
+</ul>
+
+<h3>When to write your tests?</h3>
+
+<ul>
+<li>NOW!</li>
+<li>Building acceptance tests from the beginning changes the way you think about how data is encapsulated in your application. In the case of CoffeeCup we didn&#39;t have tests until after the product was relatively mature. This made building in reliable tests more difficult after the fact. Also, strange behaviour in the tests are harder to distinguish between a problem in the app or just some strange behaviour of Ember.</li>
+<li>Tests make it easier for new members to come into the team. New team members often don&#39;t understand all of the requirements and features of a complex application. Having tests lets them make changes and getting feedback when things regarding what things shouldn&#39;t be changed.</li>
+</ul>
